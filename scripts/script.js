@@ -11,6 +11,22 @@ let decimalDivisor = 1;
 let operator = "";
 let previousState = null;
 
+function checkLen() {
+    if (screenState.length > 10) {
+        if (screenState.search('\.') == -1) {
+            screenState = screenState.substring(screenState.length-10);
+        } else {
+            let screenStateSplit = screenState.split('.');
+            if (screenStateSplit[0].length >= 10) {
+                screenState = screenState.substring(screenState.length-10);
+            } else if (screenStateSplit[0].length < 10) {
+                screenState = screenStateSplit[0] + "." + screenStateSplit[1].substring(0,10-screenStateSplit[0].length);
+            }
+        }
+    }
+    return screenState;
+}
+
 [...buttons].map((button) => button.addEventListener('mousedown',() => button.style.opacity = .5));
 [...buttons].map((button) => button.addEventListener('mouseup',() => button.style.opacity = 1));
 
@@ -27,6 +43,11 @@ let previousState = null;
             screenState = button.textContent;
             operator = "";
         }
+        else if (operator == ".") {
+            screen.textContent += button.textContent;
+            screenState+= button.textContent;
+            operator = "";
+        }
         else if (operator != "") {
             screen.textContent = (screen.textContent == "0") ? button.textContent : screen.textContent + button.textContent;
             screenState += button.textContent;
@@ -34,6 +55,7 @@ let previousState = null;
             screen.textContent = (screen.textContent == "0") ? button.textContent : screen.textContent + button.textContent;
             screenState += button.textContent;
         }
+        screen.textContent = "" + Number(checkLen());
     })));
 
 const clear = document.querySelector('#clear');
@@ -52,7 +74,19 @@ negate.addEventListener('click',() => {
 
 const percent = document.querySelector('#percent');
 percent.addEventListener('click',() => {
-    screenState*=.01;
+    screenState = "" + screenState*.01;
+    if (screenState.length > 10) {
+        if (screenState.search('\.') == -1) {
+            screenState = screenState.substring(screenState.length-10);
+        } else {
+            let screenStateSplit = screenState.split('.');
+            if (screenStateSplit[0].length >= 10) {
+                screenState = screenState.substring(screenState.length-10);
+            } else if (screenStateSplit[0].length < 10) {
+                screenState = screenStateSplit[0] + "." + screenStateSplit[1].substring(0,10-screenStateSplit[0].length);
+            }
+        }
+    }
     screen.textContent = ""+screenState;
 });
 
@@ -112,9 +146,11 @@ equal.addEventListener('click', () => {
 
 const decimal = document.querySelector('#decimal');
 decimal.addEventListener('click', ()=> {
-    if (screen.textContent.search('\.') == -1) {
+    if (Number.isInteger(+screenState)) {
         screen.textContent+=".";
+        screenState += ".";
         decimalDivisor = 10;
+        operator = ".";
     } 
 })
 
