@@ -18,10 +18,6 @@ let previousState = null;
     .filter((button) => button.className.search('(top|right|decimal)') == -1)
     .map((button) => button.addEventListener('click',() => {
 
-        if (screen.textContent.length >= 10) {
-            return;
-        }
-
         if (screenState == previousState ) {
             screen.textContent = button.textContent;
             screenState = +button.textContent;
@@ -45,6 +41,7 @@ clear.addEventListener('click',() => {
     screen.textContent = "0";
     screenState = "0";
     previousState = null;
+    operator = "";
 });
 
 const negate = document.querySelector('#negate');
@@ -75,13 +72,13 @@ const operators = document.querySelectorAll('.right');
 const equal = document.querySelector('#equal');
 equal.addEventListener('click', () => {
     console.log(operator);
+    console.log(screenState);
     switch (true) {
         case (operator === "/"):
             screenState = "" + (+previousState / +screenState);
             screen.textContent = "" + +screenState;
             break;
         case (operator === "*"):
-            console.log('hi');
             screenState = "" + (+previousState * +screenState);
             screen.textContent = "" + +screenState;
             break;
@@ -93,12 +90,22 @@ equal.addEventListener('click', () => {
             screenState = "" + (+previousState + +screenState);
             screen.textContent = "" + +screenState;
             break;
-        // case (operator == "="):
-        //     screenState = +button.textContent;
     }
     previousState = null;
-
-    
+    console.log(screenState);
+    if (screenState.length > 10) {
+        if (screenState.search('\.') == -1) {
+            screenState = screenState.substring(screenState.length-10);
+        } else {
+            let screenStateSplit = screenState.split('.');
+            if (screenStateSplit[0].length >= 10) {
+                screenState = screenState.substring(screenState.length-10);
+            } else if (screenStateSplit[0].length < 10) {
+                screenState = screenStateSplit[0] + "." + screenStateSplit[1].substring(0,10-screenStateSplit[0].length);
+            }
+        }
+    }
+    console.log(screenState);
     screen.textContent = "" + screenState;
     operator = "=";
 });
